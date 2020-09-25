@@ -1,0 +1,201 @@
+def Pipeline_Message
+pipeline{
+    environment {
+    registry = "arnablens/indu"
+    registryCredential = 'DockerHub_Arnab'
+    dockerImage= ''
+  }
+  agent any
+  
+  stages {
+    stage('Cloning Git') {
+      steps {
+        git branch:'newbranch', url:'https://github.com/Arnablens/pipelineexam.git'
+        script 
+        {
+            Pipeline_Message=env.STAGE_NAME
+            echo "Cloning Git"
+        }
+      }
+    }
+    stage('Clean Old Packages') 
+    {
+        steps
+        {
+            script 
+            {
+                Pipeline_Message=env.STAGE_NAME
+                echo "Cleaning old packages"
+            }
+            dir("/var/lib/jenkins/workspace/codingchallengearnab/spring-boot-samples/spring-boot-sample-atmosphere")
+            {
+                sh label: 'Clean', script: 'mvn clean'
+            }
+        }
+    }
+    stage('Maven Compile') 
+    {
+        steps
+        {
+            script 
+            {
+                Pipeline_Message=env.STAGE_NAME
+                echo "Maven Compile"
+            }
+            dir("/var/lib/jenkins/workspace/codingchallengearnab/spring-boot-samples/spring-boot-sample-atmosphere")
+            {
+                sh label: 'Compile', script: 'mvn compile'
+            }
+        }
+    }
+    stage('Sonar Analysis')
+    {
+        steps
+        {
+             script 
+            {
+                Pipeline_Message=env.STAGE_NAME
+                echo "Sonar Analysis"
+            }
+            dir("/var/lib/jenkins/workspace/codingchallengearnab/spring-boot-samples/spring-boot-sample-atmosphere")
+            {
+                withSonarQubeEnv('SonarQube')
+                {
+                    sh 'mvn sonar:sonar'
+                }
+            }
+        }
+    }
+    stage("Quality Gate") 
+    {
+        steps 
+        {
+            script 
+            {
+                Pipeline_Message=env.STAGE_NAME
+                echo "Quality gate"
+            }
+            timeout(time: 1, unit: 'HOURS') 
+            {
+                waitForQualityGate abortPipeline: true
+            }
+        }
+    }
+    stage('Maven Package') 
+    {
+        steps
+        {
+            dir("/var/lib/jenkins/workspace/codingchallengearnab/spring-boot-samples/spring-boot-sample-atmosphere")
+            {
+                sh label: 'Testing', script: 'mvn clean install'
+            }
+            script 
+            {
+                Pipeline_Message=env.STAGE_NAME
+                echo "Package and Install"
+            }
+        }
+    }
+    stage('Jfrog Artifactory')
+    {
+        steps
+        {
+            script
+            {
+                Pipeline_Message=env.STAGE_NAME
+                echo "Uploaded to Jfrog Artifactory"
+                def server= Artifactory.server 'Artifactory'
+                def uploadSpec= """{
+                    "files": [{
+                    "pattern": "/var/lib/jenkins/workspace/codingchallengearnab/spring-boot-samples/spring-boot-sample-atmosphere/target/*.jar",
+                    "target": "codingchallengearnab"}]
+                }"""
+                server.upload(uploadSpec)
+            }
+        }
+    }
+    stage('Create image') 
+    {
+        steps
+        {
+            script
+            {
+                Pipeline_Message=env.STAGE_NAME
+                echo "Creating Image"
+            }
+            dir("/var/lib/jenkins/workspace/codingchallengearnab/spring-boot-samples/spring-boot-sample-atmosphere")
+            {
+                script 
+                {
+                    dockerImage = docker.build registry + ":$BUILD_NUMBER"
+                }
+            }
+        }
+    }
+    stage('Push Image') 
+    {
+        steps
+        {
+            script 
+            {
+                Pipeline_Message=env.STAGE_NAME
+                echo "Push Image"
+                docker.withRegistry( '', registryCredential ) 
+                {
+                    dockerImage.push()
+                }
+            }
+        }
+    }
+    stage('Remove Unused docker image') 
+    {
+        steps
+        {
+            script 
+            {
+                Pipeline_Message=env.STAGE_NAME
+                echo "Removing Unused Docker Image"
+            }
+            sh "docker rmi $registry:$BUILD_NUMBER"
+            
+        }
+    }
+    stage('pull image from dockerhub')
+    {
+        steps
+        {
+            script
+            {
+                Pipeline_Message=env.STAGE_NAME
+                echo "Docker Pull"
+                sh "docker pull $registry:$BUILD_NUMBER"
+            }
+        }
+    }
+    stage('deployee the image in the tomcat server')
+    {
+        steps
+        {
+            script
+            {
+                Pipeline_Message=env.STAGE_NAME
+                echo "Docker Container Run"
+                sh"docker run -d -p 8086:8080 --name coding_challnge -v /var/lib/tomcat8/conf/tomcat-users.xml:/usr/local/tomcat/conf/tomcat-users.xml $registry:$BUILD_NUMBER"
+            }
+        }
+    }
+  }
+    post 
+    {  
+        always 
+        {  
+            echo 'This will always run'  
+        }
+        success {
+            mail bcc: '', body: 'project is successfully builded', from: '', replyTo: '', subject: 'project successfully finished.', to: 'Arnab.Dey2@mindtree.com'
+        }
+        failure {
+            mail bcc: '', body:"Failed stage name: ${Pipeline_Message}; This needs to be resolved... ${env.BUILD_URL} has result ${currentBuild.result}", from: '', replyTo: '', subject:"Status of pipeline: ${currentBuild.fullDisplayName}", to: 'Arnab.Dey2@mindtree.com'
+        }
+    }  
+}

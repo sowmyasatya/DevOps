@@ -1,0 +1,72 @@
+From unbutu:16.04
+Maintainer hyndavi
+run apt-get update
+run apt-get install apache2 -yum
+copy index.html /var/www/html/index
+expose 80
+CMD ["/usr/sbin/apache2ctl","-D","FOREGROUND"]
+
+
+
+create container
+
+docker run -d -p 8083(local machine port number(this shud be given in server with ua ip):80(container port) --name apache_container(container name) apache_image(image name)
+
+to see all the container
+docker ps -a 
+
+//info of docker container
+docker inspect
+
+//to remove the container
+docker rm id
+
+//to remove the image
+docker rmi id
+
+//if you want to remove the image first you have to remove the container then the image)
+
+deploying jar file
+git clone "gitziplink"then go inside
+mvn clean install
+cd target/
+ls
+cd ..
+ls
+already create a dockerfile or create it
+vi open the file
+from openjdk:8
+run mkdir -p /usr/src/myapp
+copy target/spring-boot-sample-atmosphere-1.4.0.Build-snapshot.jar /usr/src/myapp
+workdir /usr/src/myapp
+port expose 
+cmd ["java","-jar","spring-boot-sample-atmosphere-1.4.0.Build-snapshot.jar"]
+docker build -t image_name .(dot is path of the current directory)//creating image
+create container(8080:8083)
+::::::::::::::::::::::::::::::::::
+deploying war file
+:::::::::::::::::::::::::::::::::
+mkdir
+
+go to that directory(cd)
+
+clone code from git 
+
+mvn clean install
+
+cd gameoflife-web
+
+cd target/
+
+ls
+
+vi dockerfile
+
+from tomcat:8
+run echo "Deploying war on server"
+//copying war file to local
+copy /gameoflife-web/target/gameoflife.war /usr/local/tomcat/webapps
+//create docker image
+docker build -t image_name .
+//create container
+docker run -d -it -p 8083:8080 -v /var/lib/tomcat8/conf/tomcat-users.xml:/var/lib/tomcat8/conf/tomcat-users.xml docker_image

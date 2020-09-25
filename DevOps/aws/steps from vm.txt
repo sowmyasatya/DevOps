@@ -1,0 +1,11 @@
+cd terraform
+cd terraformDemo
+vi myEc2.tf
+
+**script**
+
+terraform init
+
+terraform apply
+
+terraform destroy

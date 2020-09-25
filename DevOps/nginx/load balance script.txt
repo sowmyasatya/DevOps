@@ -1,0 +1,70 @@
+cd /etc/nginx
+
+cd /etc/nginx/sites-available
+cd  
+vi nginx.config
+
+cd ..
+
+cd sites-enable
+
+sudo ln -s /etc/nginx/site-available/nginx.config /etc/nginx/site-enabled/nginx.config
+//sudo ln -s /etc/nginx/sites-available/ngnix.config /etc/nginx/sites-enabled/ 
+
+sudo systemctl restart nginx
+
+
+
+::::::::::::;
+ docker build -t gol_image .
+ 
+ docker images
+ docker run -d -p 8086:8080 --name gol_con1 gol_image
+ docker run -d -p 8087:8080 --name gol_con2 gol_image
+ cd ..
+ cd /
+ docker ps -a
+
+:::::::::::::::::::::::::::::
+nginx.config
+----------------
+upstream backend
+{
+server localhost:8086;
+server localhost:8087;
+}
+
+ 
+
+
+server{
+listen 8085;
+location / {
+proxy_pass http://backend;
+          }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

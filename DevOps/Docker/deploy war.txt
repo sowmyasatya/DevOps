@@ -1,0 +1,21 @@
+build image for webapp and run:
+
+ create mkdir folder
+
+step1: take project from git clone link
+
+step2: mvn install (the project from pom lnk, it appears build success)
+
+step3: write the docker file as:
+		FROM tomcat:8.0
+
+		RUN echo 'Deploying war on server'
+		COPY /gameoflife-web/target/gameoflife.war /var/lib/tomcat/webapps
+
+step4: build the image as:docker build -t gol_img
+
+step5: then run the docker image with container as following instruction:
+
+docker run -d -it -p 8083:8080 --name container_name -v /var/lib/tomcat8/conf/tomcat-users.xml:
+/var/lib/tomcat/conf/tomcat-users.xml image_name
+

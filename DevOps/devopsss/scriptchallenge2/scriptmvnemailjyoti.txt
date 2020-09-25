@@ -1,0 +1,114 @@
+def stag
+pipeline{
+  agent any
+
+    stages{
+       stage('Checkout')
+        {
+         steps
+         {
+               script
+            {
+            stag=STAGE_NAME
+            sh 'rm -rf Pipeline_challenge-'
+            sh 'git clone https://github.com/chiragvasani36/Pipeline_challenge-.git'
+            }
+          }
+        }
+        stage('validate')
+        {
+            steps{
+                dir("/var/lib/jenkins/workspace/coding/Pipeline_challenge-/atmosphere/spring-boot-samples/spring-boot-sample-atmosphere")
+                {
+            script
+            {
+                stag=STAGE_NAME
+                sh 'mvn validate'
+            }
+                }
+            }
+        }
+        stage('compile')
+        {
+            steps{
+                dir("/var/lib/jenkins/workspace/coding/Pipeline_challenge-/atmosphere/spring-boot-samples/spring-boot-sample-atmosphere")
+                {
+            sh 'mvn compile'
+                }
+            }
+        }
+        stage('test')
+        {
+           steps{
+               dir("/var/lib/jenkins/workspace/coding/Pipeline_challenge-/atmosphere/spring-boot-samples/spring-boot-sample-atmosphere")
+               {
+            sh 'mvn test'
+               }
+            }
+        }
+        stage('package')
+        {
+           steps{
+               dir("/var/lib/jenkins/workspace/coding/Pipeline_challenge-/atmosphere/spring-boot-samples/spring-boot-sample-atmosphere")
+               {
+            sh 'mvn package'
+               }
+            }
+        }
+        stage('verify')
+        {
+           steps{
+               dir("/var/lib/jenkins/workspace/coding/Pipeline_challenge-/atmosphere/spring-boot-samples/spring-boot-sample-atmosphere")
+               {
+            sh 'mvn verify'
+               }
+            }
+        }
+        stage('install')
+        {
+           steps{
+               dir("/var/lib/jenkins/workspace/coding/Pipeline_challenge-/atmosphere/spring-boot-samples/spring-boot-sample-atmosphere")
+               {
+            sh 'mvn install'
+               }
+            }
+        }
+        stage('SonarQube Analysis')
+        {
+            steps{
+             dir("/var/lib/jenkins/workspace/coding/Pipeline_challenge-/atmosphere/spring-boot-samples/spring-boot-sample-atmosphere")
+             {
+                    withSonarQubeEnv('SonarQube')
+             {
+                    sh 'mvn sonar:sonar'
+            }
+             }
+            }
+        }
+    }
+     post
+    {
+        success
+    {
+      mail bcc: '',
+	 body: "Success", 
+	 cc: '', 
+	 from: '',
+	 replyTo: '',
+	 subject: "Success pipeline ${currentBuild.fullDisplayName}",
+	 to: 'jyothirymeccs15@gmail.com'  
+    }
+    failure
+    {
+         mail bcc: '',
+	 body: "Something is wrong with ${stag}", 
+	 cc: '', 
+	 from: '',
+	 replyTo: '',
+	 subject: "Failure pipeline ${currentBuild.fullDisplayName}",
+	 to: 'jyothirymeccs15@gmail.com'  
+    }
+    }
+    
+         
+}

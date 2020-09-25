@@ -1,0 +1,13 @@
+mkdir folder
+
+cd folder
+
+git init
+
+git pull otherGitRepo
+
+git branch newBranch
+
+git checkout newBranch
+
+git push myGitRepo newBranch

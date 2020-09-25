@@ -1,0 +1,68 @@
+ 				PUSH 
+
+mkdir directoryname
+
+cd directoryname
+
+git init ---------- ls -a (To see the initialized .git folder)
+
+vi filename.txt
+
+git add filename.txt --------- (To add staging)
+
+git status ----------- (To check status of file)
+
+git commit -m "message commit" ---------(To local repository --- To commit the file ---(-m means message)
+
+
+git push -u origin master ------ (To push to central repository(GitHub) --- origin-central repos ---- master-local repos)
+
+
+  				CLONE
+
+git clone "https" ---(clone help to give the copy of central repos to local machine)
+ 
+then follow
+
+add/commit/push
+
+ 				PULL 
+
+git pull (To pull all the files from the respective repository)
+
+
+To move file back from staging
+	|
+git reset filename
+
+
+
+$ git config credential.helper store
+$ git push http://example.com/repo.git
+Username: <type your username>
+Password: <type your password>
+
+
+to get back before staging
+->  git checkout .
+
+to get back from staging
+
+->  git reset filename
+
+-> git reset --hard a0fvf8
+
+to get back from commit and undo 
+
+-> git revert hash (hash from git log) 
+
+To show the modified files and details in staged area
+
+-> git diff --staged
+
+
+
+
+
+
+

@@ -1,0 +1,18 @@
+provider "aws" {
+        access_key = "dssfghjkgfhgyjukilkhg"
+        secret_key = "ghjklljhghjgfgh"
+        region = "ap-south-1"
+}
+
+resource "aws_instance" "exampleDemo" {
+        ami = "ami-0ce933e2ae91880d3"
+        instance_type = "t2.micro"
+}
+
+
+
+provider "aws" :: It tells terraform that we are working with aws, as you are using
+ aws you have provide credentials.
+
+access_key and secret_key ::: these are credentials
+

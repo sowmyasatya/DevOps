@@ -1,0 +1,98 @@
+pipeline{
+  agent any
+
+    stages{
+       stage('Checkout')
+        {
+         steps
+         {
+            sh 'rm -rf kalingashop'
+            sh 'git clone https://github.com/sowmya-satya/kalingashop.git'
+          }
+        }
+        stage('validate')
+        {
+            steps
+            {
+                dir("/var/lib/jenkins/workspace/testmvnpipe/kalingashop/kalingashop") 
+                {
+                    sh 'mvn validate'
+                }
+            }
+        }
+        stage('compile')
+        {
+            steps
+            {
+                 dir("/var/lib/jenkins/workspace/testmvnpipe/kalingashop/kalingashop")
+                 {
+                    sh 'mvn compile'
+                 }
+            }
+        }
+        stage('test')
+        {
+            steps
+            {
+                 dir("/var/lib/jenkins/workspace/testmvnpipe/kalingashop/kalingashop")
+                 {
+                     sh 'mvn test'
+                 }
+            }
+        }
+        stage('package')
+        {
+            steps
+            {
+              dir("/var/lib/jenkins/workspace/testmvnpipe/kalingashop/kalingashop")
+              {
+                  sh 'mvn package'
+              }
+            }
+        }
+        stage('verify')
+        {
+            steps
+            {
+                 dir("/var/lib/jenkins/workspace/testmvnpipe/kalingashop/kalingashop")
+                 {
+                     sh 'mvn verify'
+                 }
+            }
+        }
+        stage('install')
+        {
+            steps
+            {
+                 dir("/var/lib/jenkins/workspace/testmvnpipe/kalingashop/kalingashop")
+                 {
+                     sh 'mvn install'
+                 }
+            }
+        }
+            stage('SonarQube Analysis')
+        {
+            steps
+            {
+            dir("/var/lib/jenkins/workspace/testmvnpipe/kalingashop/kalingashop")
+                {
+                withSonarQubeEnv('sonar')
+                {
+                    sh 'mvn sonar:sonar'
+                 }
+                        }
+        }
+        }
+         stage('Quality Gate')
+            {
+                steps{
+              timeout(time: 1, unit: 'MINUTES')
+              {
+                waitForQualityGate abortPipeline: true
+              }
+                }
+            
+        }
+        
+}
+}

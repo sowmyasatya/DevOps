@@ -1,0 +1,70 @@
+codelete branch locally
+	|
+git branch -d branchname
+
+ 
+delete branch in git repository
+		|
+git push origin --delete branchname
+
+
+
+To create  sub branch
+	|
+git branch branchname
+
+
+To switch branch
+	|
+git checkout branchname------(branchname to be switched)
+
+
+TO view all branches
+	|
+git branch
+
+
+after creating branch edit the file you wanted 
+and
+git add textfile
+
+git commit -m "commit"
+
+TO PUSH THE FILE USE UPSTREAM TO EFFECT THE BRANCH
+git push --set-upstream origin branchname
+
+
+
+ 		MERGE
+
+To merge 
+go to master branch using checkout
+git checkout master
+
+now merge the required branch
+		|
+git merge branchname
+
+now push
+
+git push -f origin master
+
+
+rename file
+git mv fileoldname filenewname
+commit it
+push the local repo
+
+ 
+
+rename directory
+git mv direoldname dirnewname
+add all    git add -A
+commit it
+push the local repo
+
+
+:::::::::::
+https://stackoverflow.com/questions/18200248/cloning-a-repo-from-someone-elses-github-and-pushing-it-to-a-repo-on-my-github
+
+

@@ -1,0 +1,73 @@
+pipeline{
+    environment {
+    registry = "sowmyasatya97/sowmya_gol"
+    registryCredential = 'docker'
+  }
+    agent any
+    stages{
+        stage('Cloning Git') {
+        steps {
+        git 'https://github.com/pyamgar/gol.git'
+         }
+        }
+   
+      stage('Clean Old Packages') {
+             steps{
+        sh label: 'Clean', script: 'mvn clean'
+    }
+         }
+        stage('Maven Compile') {
+        steps{
+        sh label: 'Compile', script: 'mvn compile'
+    }
+        }
+        stage('Sonar Analysis'){
+        steps{
+        withSonarQubeEnv('sonar'){
+         sh 'mvn sonar:sonar'
+            }
+        }
+        }
+         stage('Maven Package') {
+    steps{
+    sh label: 'Testing', script: 'mvn clean install'
+    }
+    }
+  stage('create image') {
+      steps{
+          dir("/var/lib/jenkins/workspace/pushimageDocker/gameoflife-web/")
+          {
+        script {
+          docker.build registry + ":$BUILD_NUMBER"
+        }
+      }
+      }
+    }
+    stage('Building image') {
+      steps{
+        script {
+          dockerImage = docker.build registry + ":$BUILD_NUMBER"
+        }
+      }
+    }
+    stage('Deploy Image') {
+      steps{
+        script {
+            docker.withRegistry( '', registryCredential ) {
+            dockerImage.push()
+          }
+        }
+      }
+    }
+  }
+}
+
+
+
+
+
+docker login 
+
+docker tag imagename dockerusername/imagename
+
+docker push dockerusername/imagename

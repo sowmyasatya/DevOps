@@ -1,0 +1,190 @@
+node{
+       stage('Checkout')
+        {
+        
+            sh 'rm -rf gol'
+            sh 'git clone https://github.com/pyamgar/gol.git'
+          }
+        stage('validate')
+        {
+           
+                dir("/var/lib/jenkins/workspace/pipelineJSJf/gol") 
+                {
+                    sh 'mvn validate'
+                }
+            
+        }
+        stage('compile')
+        {
+           
+                 dir("/var/lib/jenkins/workspace/pipelineJSJf/gol")
+                 {
+                    sh 'mvn compile'
+                 }
+            
+        }
+        stage('test')
+        {
+           
+                 dir("/var/lib/jenkins/workspace/pipelineJSJf/gol")
+                 {
+                     sh 'mvn test'
+                 }
+            
+        }
+        stage('package')
+        {
+          
+              dir("/var/lib/jenkins/workspace/pipelineJSJf/gol")
+              {
+                  sh 'mvn package'
+              }
+            
+        }
+        stage('verify')
+        {
+          
+                 dir("/var/lib/jenkins/workspace/pipelineJSJf/gol")
+                 {
+                     sh 'mvn verify'
+                 }
+            
+        }
+        stage('install')
+        {
+          
+                 dir("/var/lib/jenkins/workspace/pipelineJSJf/gol")
+                 {
+                     sh 'mvn install'
+                 }
+            
+        }
+            stage('SonarQube Analysis')
+        {
+           
+            dir("/var/lib/jenkins/workspace/pipelineJSJf/gol")
+                {
+                withSonarQubeEnv('sonar')
+                {
+                    sh 'mvn sonar:sonar'
+                 }
+                        }
+        
+        }
+        stage('Quality Gate')
+            {
+              timeout(time: 1, unit: 'MINUTES')
+              {
+                waitForQualityGate abortPipeline: true
+              }
+            
+        }
+        stage('Jfrog Artifacory'){
+           
+    script{
+        def server= Artifactory.server 'jenkins-server-artifactory'
+                    def uploadSpec= """{
+                        "files": [{
+                        "pattern": "target/*.war",
+                        "target": "libs-snapshot-local"
+                    }]"""
+        server.upload(uploadSpec)
+    }
+
+    
+        }       
+}
+
+
+::::::::::::::::::::::
+
+pipeline{
+  agent any
+
+    stages{
+       stage('Checkout')
+        {
+         steps
+         {
+            sh 'rm -rf kalingashop'
+            sh 'git clone https://github.com/sowmya-satya/kalingashop.git'
+          }
+        }
+        stage('validate')
+        {
+            steps
+            {
+                dir("/var/lib/jenkins/workspace/testmvnpipe/kalingashop/kalingashop") 
+                {
+                    sh 'mvn validate'
+                }
+            }
+        }
+        stage('compile')
+        {
+            steps
+            {
+                 dir("/var/lib/jenkins/workspace/testmvnpipe/kalingashop/kalingashop")
+                 {
+                    sh 'mvn compile'
+                 }
+            }
+        }
+        stage('test')
+        {
+            steps
+            {
+                 dir("/var/lib/jenkins/workspace/testmvnpipe/kalingashop/kalingashop")
+                 {
+                     sh 'mvn test'
+                 }
+            }
+        }
+        stage('package')
+        {
+            steps
+            {
+              dir("/var/lib/jenkins/workspace/testmvnpipe/kalingashop/kalingashop")
+              {
+                  sh 'mvn package'
+              }
+            }
+        }
+        stage('verify')
+        {
+            steps
+            {
+                 dir("/var/lib/jenkins/workspace/testmvnpipe/kalingashop/kalingashop")
+                 {
+                     sh 'mvn verify'
+                 }
+            }
+        }
+        stage('install')
+        {
+            steps
+            {
+                 dir("/var/lib/jenkins/workspace/testmvnpipe/kalingashop/kalingashop")
+                 {
+                     sh 'mvn install'
+                 }
+            }
+        }
+            stage('SonarQube Analysis')
+        {
+            steps
+            {
+            dir("/var/lib/jenkins/workspace/testmvnpipe/kalingashop/kalingashop")
+                {
+                withSonarQubeEnv('sonar')
+                {
+                    sh 'mvn sonar:sonar'
+                 }
+                        }
+        }
+        }
+        
+}
+}
+
+::::::::::::::::::::::::::::::::::::::

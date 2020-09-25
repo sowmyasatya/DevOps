@@ -1,0 +1,13 @@
+docker commands
+:::::::::::
+https://docs.docker.com/engine/reference/commandline/build/
+
+
+Jenkins
+::::::::::::::
+https://www.tutorialspoint.com/jenkins/jenkins_quick_guide.htm
+
+
+Terraform
+::::::::::::
+https://www.youtube.com/watch?v=RA1mNClGYJ4

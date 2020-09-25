@@ -1,0 +1,13 @@
+ cd /etc/default/
+sudo vi jenkins
+sudo /etc/init.d/jenkins restart
+
+
+Sonar::::::
+
+cd opt/sonarqube
+cd conf
+ls
+sudo vi sonar.properties
+.... web server - uncomment and change port and comment and save
+

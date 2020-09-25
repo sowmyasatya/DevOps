@@ -1,0 +1,21 @@
+to resolve merge conflict 
+
+
+merge conflict happens when more than one developer working on same file
+
+eg : 
+if person1 who is working on file1 has updated and pushed the file
+
+In the same time person2 is working on the non-updated file1 and updated it 
+and trying to push the file1 
+
+then it fails to push the file 
+
+*** then type ->  git pull 
+              
+then you will get the updated file and along with your modified code in that 
+file ...if you want person1 updation only then you have a choice to delete your 
+updated line and then 
+
+add/commit/push successfully
+ 

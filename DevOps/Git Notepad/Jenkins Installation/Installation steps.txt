@@ -1,0 +1,24 @@
+[9:59 AM] Chirag Vasani
+    Step 3.2.1: To use the Debian repository of Jenkins to automate installation and upgrade, first add the key to your system using the following command:
+wget -q -O - https://pkg.jenkins.io/debian-stable/jenkins.io.key | sudo apt-key add -
+
+Step 3.2.2 : Then, add the following entry in your /etc/apt/sources.list:
+sudo vi /etc/apt/sources.list
+Now add the following command:
+deb https://pkg.jenkins.io/debian-stable binary/
+Save and exit using :wq!
+
+Step 3.2.3: Update your local package index.
+sudo apt-get update
+Make sure you have jdk installed. If not, install it using the following command:
+sudo apt-get install openjdk-8-jdk
+Then install Jenkins.
+sudo apt-get install jenkins
+
+Step 3.2.4: Once Jenkins is installed, open a browser on your local machine and enter the
+URL:    x.x.x.x:8080
+replacing x.x.x.x with the external IP address of your virtual machine.
+You will need to enter the admin password.
+To find the password, type the following command:
+sudo cat /var/lib/jenkins/secrets/initialAdminPassword
+<https://teams.microsoft.com/l/message/19:a7a4f62c6d374d5d9cef2c602a553798@thread.skype/1576211359356?tenantId=85c997b9-f494-46b3-a11d-772983cf6f11&amp;groupId=e1cb6ace-8094-4f7f-9d16-b7819b364f28&amp;parentMessageId=1576211359356&amp;teamName=DevOps2019_Kalinga&amp;channelName=General&amp;createdTime=1576211359356>

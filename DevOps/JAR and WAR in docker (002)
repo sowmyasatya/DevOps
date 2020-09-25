@@ -1,0 +1,46 @@
+-----Jar file deployment in Docker with database connectivity-----
+
+1.install mysql in your VM
+2.set the password
+ -->sudo mysql -u root -p
+ -->GRANT ALL PRIVILEGES ON *.* TO 'root'@'vm_ip' IDENTIFIED BY 'password';
+ -->FLUSH ALL PRIVILEGES;
+ 
+3. Allow permission using mysqld.cnf
+ --> sudo vi /etc/mysql/mysql.conf.d/mysqld.cnf
+	 add this--> bind-address = 0.0.0.0
+ --> sudo systemctl restart mysql.service
+ 
+4. in application.properties
+ --> vm_ip:3306
+ 
+5. remove mysql version from pom.xml
+
+6. use database_name;
+
+-----------------------------
+ War file- (not required for GOL project)
+ 
+ 1. follow the above steps if not done yet 
+ 2. tomcat 9 in docker file
+ 3. tomcat version 9.0 in pom.xml
+
+<dependency>
+    <groupId>org.apache.tomcat</groupId>
+    <artifactId>tomcat-jasper</artifactId>
+    <version>9.0.10</version>
+</dependency>
+
+
+ 4. sudo vi /var/lib/tomcat8/conf/context.xml
+ 5. sudo service tomcat8 restart
+ 6. docker run -d -it -p 8083:8080 --name container_name -v /var/lib/tomcat8/conf/tomcat-users.xml:/usr/local/tomcat/conf/tomcat-users.xml 
+ -v /var/lib/tomcat8/conf/context.xml:/usr/local/tomcat/webapps/manager/META-INF/context.xml  image_name
+ 
+--------------
+
+sudo groupadd docker
+sudo usermod -aG docker jenkins
+sudo service jenkins restart 
+
+	

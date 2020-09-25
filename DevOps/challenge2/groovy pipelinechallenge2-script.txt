@@ -1,0 +1,205 @@
+def Pipeline_Message
+pipeline{
+    environment {
+    registry = "sowmyasatya97/challenge2"
+    registryCredential = 'docker'
+  }
+  agent any
+  stages {
+    stage('Cloning Git') {
+      steps {
+          script
+          {
+         Pipeline_Message=env.STAGE_NAME
+          sh 'rm -rf challenge2fulldemo'
+        sh 'git clone https://github.com/sowmya-satya/challenge2fulldemo.git'
+      }
+    }
+    }
+         stage('Clean Old Packages') {
+             steps{
+                 script
+                 {
+                     Pipeline_Message=env.STAGE_NAME
+                     echo "Cleaning old packages"
+                 }
+                           dir("/var/lib/jenkins/workspace/schallenge2/challenge2fulldemo/company/")
+{
+            sh 'mvn clean'
+    }
+             }
+         }
+        stage('Maven Compile') {
+        steps{
+            script
+            {
+                Pipeline_Message=env.STAGE_NAME
+                echo "Maven Compile"
+            }
+                      dir("/var/lib/jenkins/workspace/schallenge2/challenge2fulldemo/company/")
+{
+        sh label: 'Compile', script: 'mvn compile'
+    }
+        }
+        }
+        stage('Sonar Analysis'){
+        steps{
+            script 
+            {
+                Pipeline_Message=env.STAGE_NAME
+                echo "Sonar Analysis"
+            }
+            dir("/var/lib/jenkins/workspace/schallenge2/challenge2fulldemo/company/")
+{
+        withSonarQubeEnv('sonar'){
+         sh 'mvn sonar:sonar'
+            }
+}
+        }
+        }
+        stage("Quality Gate") {
+            steps {
+        
+            script
+            {
+                Pipeline_Message=env.STAGE_NAME
+                echo "Quality gate"
+            }
+        
+              timeout(time: 1, unit: 'HOURS') {
+                waitForQualityGate abortPipeline: true
+              }
+            }
+          }
+    stage('Maven Package') {
+    steps{
+                  dir("/var/lib/jenkins/workspace/schallenge2/challenge2fulldemo/company/")
+{
+                sh 'mvn clean install'
+    }
+    script 
+            {
+                Pipeline_Message=env.STAGE_NAME
+                echo "Package and Install"
+            }
+    }
+    }
+    stage('Jfrog Artifacory')
+    {
+        steps{
+    script{
+        Pipeline_Message=env.STAGE_NAME
+                echo "Uploaded to Jfrog Artifactory"
+        def server= Artifactory.server 'jenkins-server-artifactory'
+                    def uploadSpec= """{
+                        "files": [{
+                        "pattern": "/var/lib/jenkins/workspace/schallenge2/challenge2fulldemo/company/target/*.war",
+                        "target": "fulldemosowmya/"}]
+                    }"""
+        server.upload(uploadSpec)
+        }
+    }
+    }
+    
+    stage('Jfrog Artifactory download'){
+    
+     steps{
+     script{
+    def server= Artifactory.server 'jenkins-server-artifactory'
+    def downloadSpec = """{
+    "files": [
+    {
+      "pattern": "fulldemosowmya/*.jar",
+      "target": "/var/lib/jenkins/fulldemosowmya1"
+    }
+    ]
+    }"""
+    server.download(downloadSpec)
+  
+}
+        
+     }
+ 
+    }
+    stage('create image') {
+      steps{
+           script
+            {
+                Pipeline_Message=env.STAGE_NAME
+                echo "Creating Image"
+            }
+          dir("/var/lib/jenkins/workspace/schallenge2/challenge2fulldemo/company/")
+          {
+        script {
+          docker.build registry + ":$BUILD_NUMBER"
+        }
+      }
+      }
+    }
+    stage('Deploy Image') {
+      steps{
+        script {
+            
+                Pipeline_Message=env.STAGE_NAME
+                echo "Push Image"
+          docker.withRegistry( '', registryCredential ) {
+            //dockerImage.push()
+            sh 'docker push $registry:$BUILD_NUMBER'
+          }
+        }
+      }
+    }
+    stage('Remove Unused docker image') {
+      steps{
+          script 
+            {
+                Pipeline_Message=env.STAGE_NAME
+                echo "Removing Unused Docker Image"
+            }
+        sh "docker rmi $registry:$BUILD_NUMBER"
+      }
+    }
+    stage('pull image from dockerhub'){
+    steps{
+        script{
+             Pipeline_Message=env.STAGE_NAME
+                echo "Docker Pull"
+             sh "docker pull $registry:$BUILD_NUMBER"
+       
+    }
+    }
+  }
+  stage('deployee the image in the tomcat server'){
+      steps{
+          script{
+              Pipeline_Message=env.STAGE_NAME
+                echo "Docker Container Run"
+              sh"docker run -d -it -p 8086:8080 --name fulldemocontainer -v /var/lib/tomcat8/conf/tomcat-users.xml:/usr/local/tomcat/conf/tomcat-users.xml $registry:$BUILD_NUMBER"
+            //sh "docker run -d -p 8085:8080 --name atmosphere $register:$BUILD_NUMBER" 
+          }
+      }
+  }
+//   stage("Terraform"){
+//             steps{
+//                 dir("/var/lib/jenkins/workspace/schallenge2/challenge2fulldemo/company/"){
+//                     sh 'terraform init'
+//                     sh 'terraform apply -input=false -auto-approve'
+//                 }
+//             }
+//   }
+  }
+   post 
+    {  
+        always 
+        {  
+            echo 'This will always run'  
+        }
+        success {
+            mail bcc: '', body: 'project is successfully builded', from: '', replyTo: '', subject: 'project successfully finished.', to: 'Satyasowmya.Rayapureddy2@mindtree.com'
+        }
+        failure {
+            mail bcc: '', body:"Failed stage name: ${Pipeline_Message}; This needs to be resolved... ${env.BUILD_URL} has result ${currentBuild.result}", from: '', replyTo: '', subject:"Status of pipeline: ${currentBuild.fullDisplayName}", to: 'Satyasowmya.Rayapureddy2@mindtree.com'
+        }
+    }  
+  
+}

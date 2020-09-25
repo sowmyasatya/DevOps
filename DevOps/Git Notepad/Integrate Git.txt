@@ -1,0 +1,18 @@
+How to add github project to eclipse
+
+
+1. sign into github
+
+2. start a project = create a repository
+
+3. start eclipse
+
+4. Goto prespective -> Git Repositories and click on add git Repo
+
+5. Create a project in eclipse
+
+6. do a right click on project > Team > Share > Add to git repo
+
+7. commit and push the project to the repo
+
+8. Commit and push every change to the repo

@@ -1,0 +1,8 @@
+sudo serivce jenkins status
+
+sudo service jenkins start
+
+cd /etc/default
+
+ls
+
